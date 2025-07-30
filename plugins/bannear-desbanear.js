@@ -1,16 +1,23 @@
-let handler = async (m, { command }) => {
+let handler = async (m, { conn, command }) => {
   let chat = global.db.data.chats[m.chat]
 
+  let message
   if (command === 'luffy on') {
     chat.isBanned = false
-    await conn.sendMessage(m.chat, { text: '✅ *Este chat fue desbaneado. Ahora puedes usar a LuffyBot-MD.*' }, { quoted: m })
+    message = await conn.sendMessage(m.chat, { text: '✅ *Este chat fue desbaneado. Ahora puedes usar a LuffyBot-MD.*' }, { quoted: m })
   } else if (command === 'luffy off') {
     chat.isBanned = true
-    await conn.sendMessage(m.chat, { text: '❌ *Este chat fue baneado. Ya no podrán usar a LuffyBot-MD.*' }, { quoted: m })
+    message = await conn.sendMessage(m.chat, { text: '❌ *Este chat fue baneado. Ya no podrán usar a LuffyBot-MD.*' }, { quoted: m })
   }
 
+  setTimeout(() => {
+    if (message?.key) {
+      conn.sendMessage(m.chat, { delete: message.key }).catch(() => {})
+    }
+  }, 60000)
+
   if (m.key && m.key.remoteJid && m.key.id) {
-    await conn.sendMessage(m.chat, { delete: m.key })
+    await conn.sendMessage(m.chat, { delete: m.key }).catch(() => {})
   }
 }
 
