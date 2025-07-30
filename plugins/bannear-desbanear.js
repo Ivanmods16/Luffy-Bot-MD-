@@ -1,39 +1,38 @@
-let handler = async (m, { conn, command, isAdmin, isBotAdmin, isGroup }) => {
-  if (!isGroup) {
-    return conn.sendMessage(m.chat, { text: '❗Este comando solo funciona en grupos.' }, { quoted: m })
+// 
+
+let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin }) => {
+  
+  let isEnable = /true|enable|(turn)?on|1/i.test(command)
+  let chat = global.db.data.chats[m.chat]
+
+  if (!chat) global.db.data.chats[m.chat] = {}
+  chat = global.db.data.chats[m.chat]
+
+  let type = (args[0] || '').toLowerCase()
+
+  if (type !== 'luffy') {
+    return m.reply(`Usa:\n${usedPrefix}on luffy\n${usedPrefix}off luffy`)
   }
 
-  if (!isAdmin) {
-    return conn.sendMessage(m.chat, { text: '🚫 Solo los administradores del grupo pueden usar este comando.' }, { quoted: m })
+  if (!m.isGroup) {
+    return m.reply('Este comando solo funciona en grupos.')
+  }
+  if (!isAdmin && !isOwner) {
+    return m.reply('Solo admins pueden activar o desactivar luffy.')
   }
 
-  if (!isBotAdmin) {
-    return conn.sendMessage(m.chat, { text: '🤖 Necesito ser administrador para ejecutar este comando.' }, { quoted: m })
-  }
+  chat.isBanned = !isEnable ? true : false
 
-  let chat = global.db.data.chats[m.chat] ??= {}
-
-  let message
-  if (command === 'desbanchat') {
-    chat.isBanned = false
-    message = await conn.sendMessage(m.chat, { text: '✅ *Este chat fue desbaneado. Ahora pueden usar a LuffyBot-MD.*' }, { quoted: m })
-  } else if (command === 'banchat') {
-    chat.isBanned = true
-    message = await conn.sendMessage(m.chat, { text: '❌ *Este chat fue baneado. Ya no podrán usar a LuffyBot-MD.*' }, { quoted: m })
-  }
-
-  setTimeout(() => {
-    if (message?.key) {
-      conn.sendMessage(m.chat, { delete: message.key }).catch(() => {})
-    }
-  }, 60000)
-
-  if (m.key?.remoteJid && m.key?.id) {
-    await conn.sendMessage(m.chat, { delete: m.key }).catch(() => {})
+  // Respuesta clara según el estado
+  if (chat.isBanned) {
+    await m.reply(' Bot baneado aquí.')
+  } else {
+    await m.reply(' Bot desbaneado aquí.')
   }
 }
 
-handler.command = /^(banchat|desbanchat)$/i
-handler.group = true
+handler.help = ['on luffy', 'off luffy']
+handler.tags = ['group']
+handler.command = /^((en|dis)able|(tru|fals)e|(turn)?o(n|ff)|[01])$/i
 
 export default handler
