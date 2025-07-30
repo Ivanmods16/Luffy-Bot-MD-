@@ -18,13 +18,13 @@ let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin }) =
       return m.reply('❌ Solo el owner puede desbanear al bot.')
     }
     chat.isBanned = false
-    return m.reply('✅ Bot desbaneado aquí.')
+    return m.reply('Luffy-Bot desbaneado aquí.')
   } else {
     if (!isAdmin && !isOwner) {
       return m.reply('❌ Solo un admin puede banear al bot.')
     }
     chat.isBanned = true
-    return m.reply('🤖 Bot baneado aquí.')
+    return m.reply('Luffy-Bot baneado aquí.')
   }
 }
 
