@@ -1,38 +1,35 @@
-// 
-
 let handler = async (m, { conn, usedPrefix, command, args, isOwner, isAdmin }) => {
-  
-  let isEnable = /true|enable|(turn)?on|1/i.test(command)
+  let isEnable = command.toLowerCase() === 'on'
   let chat = global.db.data.chats[m.chat]
 
   if (!chat) global.db.data.chats[m.chat] = {}
   chat = global.db.data.chats[m.chat]
 
-  let type = (args[0] || '').toLowerCase()
-
-  if (type !== 'luffy') {
-    return m.reply(`Usa:\n${usedPrefix}on luffy\n${usedPrefix}off luffy`)
-  }
-
   if (!m.isGroup) {
-    return m.reply('Este comando solo funciona en grupos.')
-  }
-  if (!isAdmin && !isOwner) {
-    return m.reply('Solo admins pueden activar o desactivar luffy.')
+    return m.reply('❗Este comando solo funciona en grupos.')
   }
 
-  chat.isBanned = !isEnable ? true : false
+  if (args[0]?.toLowerCase() !== 'luffy') {
+    return m.reply(`Usa:\n${usedPrefix}luffy on\n${usedPrefix}luffy off`)
+  }
 
-  // Respuesta clara según el estado
-  if (chat.isBanned) {
-    await m.reply(' Bot baneado aquí.')
+  if (isEnable) {
+    if (!isOwner) {
+      return m.reply('❌ Solo el owner puede desbanear al bot.')
+    }
+    chat.isBanned = false
+    return m.reply('✅ Bot desbaneado aquí.')
   } else {
-    await m.reply(' Bot desbaneado aquí.')
+    if (!isAdmin && !isOwner) {
+      return m.reply('❌ Solo un admin puede banear al bot.')
+    }
+    chat.isBanned = true
+    return m.reply('🤖 Bot baneado aquí.')
   }
 }
 
-handler.help = ['on luffy', 'off luffy']
+handler.help = ['luffy on', 'luffy off']
 handler.tags = ['group']
-handler.command = /^((en|dis)able|(tru|fals)e|(turn)?o(n|ff)|[01])$/i
+handler.command = /^luffy$/i
 
 export default handler
